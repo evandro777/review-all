@@ -30,5 +30,5 @@ Route::group(['prefix' => 'items', 'middleware' => 'auth:sanctum'], function () 
     Route::post('/', [ItemController::class, 'store']);
     Route::get('/{id}', [ItemController::class, 'show']);
     Route::put('/{id}', [ItemController::class, 'update']);
-    Route::delete('{id}', [ItemController::class, 'destroy']);
+    Route::delete('/{id}', [ItemController::class, 'destroy']);
 });
