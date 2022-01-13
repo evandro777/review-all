@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Reviews;
 use Illuminate\Http\Request;
-use App\Models\Items;
 use Illuminate\Support\Facades\Auth;
 
-use Session;
-
-class ItemController extends Controller
+class ReviewController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,7 +16,7 @@ class ItemController extends Controller
      */
     public function index()
     {
-        $data = Items::all()->toArray();
+        $data = Reviews::all()->toArray();
         return array_reverse($data);
     }
 
@@ -27,7 +25,7 @@ class ItemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
+    public function create()
     {
         //
     }
@@ -41,14 +39,15 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|max:255',
-            'category_id' => 'required|integer|min:1|exists:categories,id',
+            'item_id' => 'required|integer|min:1|exists:items,id',
+            'score' => 'required|integer|min:1|max:10',
+            'comment' => 'max:255',
         ]);
         
-        $data = new Items([
-            'name' => $request->name,
-            'description' => $request->description,
-            'category_id' => $request->category_id,
+        $data = new Reviews([
+            'item_id' => $request->item_id,
+            'score' => $request->score,
+            'comment' => $request->comment,
             'created_user_id' => Auth::id()
         ]);
         $data->save();
@@ -62,9 +61,9 @@ class ItemController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(int $id)
+    public function show($id)
     {
-        $data = Items::find($id);
+        $data = Reviews::find($id);
         return response()->json($data);
     }
 
@@ -86,14 +85,15 @@ class ItemController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, int $id)
+    public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'filled|max:255',
-            'category_id' => 'filled|integer|min:1|exists:categories,id',
+            'item_id' => 'filled|integer|min:1|exists:items,id',
+            'score' => 'filled|integer|min:1|max:10',
+            'comment' => 'max:255',
         ]);
-
-        $data = Items::find($id);
+        
+        $data = Reviews::find($id);
         $data->update($request->all());
         return response()->json('Success');
     }
@@ -106,7 +106,7 @@ class ItemController extends Controller
      */
     public function destroy($id)
     {
-        $data = Items::find($id);
+        $data = Reviews::find($id);
         $data->delete();
         return response()->json('Success');
     }

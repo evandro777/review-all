@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Categories;
 use Illuminate\Http\Request;
-use App\Models\Items;
 use Illuminate\Support\Facades\Auth;
 
-use Session;
-
-class ItemController extends Controller
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,7 +16,7 @@ class ItemController extends Controller
      */
     public function index()
     {
-        $data = Items::all()->toArray();
+        $data = Categories::all()->toArray();
         return array_reverse($data);
     }
 
@@ -27,7 +25,7 @@ class ItemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
+    public function create()
     {
         //
     }
@@ -42,13 +40,16 @@ class ItemController extends Controller
     {
         $request->validate([
             'name' => 'required|max:255',
-            'category_id' => 'required|integer|min:1|exists:categories,id',
+            'description' => 'required|max:255',
+            'fields_params' => 'json',
+            'category_parent_id' => 'integer|min:1|exists:categories,id',
         ]);
         
-        $data = new Items([
+        $data = new Categories([
             'name' => $request->name,
             'description' => $request->description,
-            'category_id' => $request->category_id,
+            'fields_params' => $request->fields_params,
+            'category_parent_id' => $request->category_parent_id,
             'created_user_id' => Auth::id()
         ]);
         $data->save();
@@ -62,9 +63,9 @@ class ItemController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(int $id)
+    public function show($id)
     {
-        $data = Items::find($id);
+        $data = Categories::find($id);
         return response()->json($data);
     }
 
@@ -86,14 +87,16 @@ class ItemController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, int $id)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'name' => 'filled|max:255',
-            'category_id' => 'filled|integer|min:1|exists:categories,id',
+            'description' => 'filled|max:255',
+            'fields_params' => 'json',
+            'category_parent_id' => 'integer|min:1|exists:categories,id',
         ]);
-
-        $data = Items::find($id);
+        
+        $data = Categories::find($id);
         $data->update($request->all());
         return response()->json('Success');
     }
@@ -106,7 +109,7 @@ class ItemController extends Controller
      */
     public function destroy($id)
     {
-        $data = Items::find($id);
+        $data = Categories::find($id);
         $data->delete();
         return response()->json('Success');
     }

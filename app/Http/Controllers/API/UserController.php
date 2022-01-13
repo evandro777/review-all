@@ -8,38 +8,35 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Session;
 
 class UserController extends Controller
 {
     /**
-     * Undocumented function
+     * Create a new user
      *
      * @param Request $request
      * @return \Illuminate\Http\Response
      */
     public function register(Request $request)
     {
+        $request->validate([
+            'name' => 'required|alpha|min:5|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|min:8'
+        ]);
+
         try {
             $user = new User();
             $user->name = $request->name;
             $user->email = $request->email;
             $user->password = Hash::make($request->password);
             $user->save();
-
-            $success = true;
-            $message = 'User register successfully';
+            return response()->json('User register successfully');
         } catch (\Illuminate\Database\QueryException $ex) {
-            $success = false;
-            $message = $ex->getMessage();
+            throw ValidationException::withMessages([$ex->getMessage()]);
         }
-
-        // response
-        $response = [
-            'success' => $success,
-            'message' => $message,
-        ];
-        return response()->json($response);
     }
 
     /**
@@ -50,24 +47,57 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email|max:255',
+            'password' => 'required'
+        ]);
+
         $credentials = [
             'email' => $request->email,
             'password' => $request->password,
+            'deleted_at' => null,
         ];
 
         if (Auth::attempt($credentials)) {
-            $success = true;
-            $message = 'User login successfully';
+            return response()->json([
+                'success' => true,
+                'message' => 'User login successfully'
+            ]);
         } else {
-            $success = false;
-            $message = 'Unauthorised';
+            throw ValidationException::withMessages(['Unauthorised'])->status(401);
+        }
+    }
+
+    /**
+     * Login using token
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function loginToken(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|max:255',
+            'password' => 'required',
+            'device_name' => 'required|min:2|max:255',
+        ]);
+
+        $user = User::where([
+            'email' => $request->email,
+            'deleted_at' => null
+        ])->first();
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages(['Unauthorised'])->status(401);
         }
 
-        $response = [
-            'success' => $success,
-            'message' => $message,
-        ];
-        return response()->json($response);
+        $user->tokens()
+            ->where('name', $request->device_name)
+            ->delete();
+
+        return response()->json(
+            $user->createToken($request->device_name)->plainTextToken
+        );
     }
 
     /**
@@ -79,18 +109,9 @@ class UserController extends Controller
     {
         try {
             Session::flush();
-            $success = true;
-            $message = 'Successfully logged out';
+            return response()->json('Successfully logged out');
         } catch (\Illuminate\Database\QueryException $ex) {
-            $success = false;
-            $message = $ex->getMessage();
+            throw ValidationException::withMessages([$ex->getMessage()]);
         }
-
-        // response
-        $response = [
-            'success' => $success,
-            'message' => $message,
-        ];
-        return response()->json($response);
     }
 }

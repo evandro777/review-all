@@ -2,6 +2,9 @@
 
 // use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\ItemController;
+use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\ReviewController;
 use App\Http\Controllers\API\UserController;
 
 /*
@@ -32,6 +35,22 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/{id}', [ItemController::class, 'show']);
         Route::put('/{id}', [ItemController::class, 'update']);
         Route::delete('/{id}', [ItemController::class, 'destroy']);
+    });
+
+    Route::group(['prefix' => 'categories'], function () {
+        Route::get('/', [CategoryController::class, 'index']);
+        Route::post('/', [CategoryController::class, 'store']);
+        Route::get('/{id}', [CategoryController::class, 'show']);
+        Route::put('/{id}', [CategoryController::class, 'update']);
+        Route::delete('/{id}', [CategoryController::class, 'destroy']);
+    });
+
+    Route::group(['prefix' => 'reviews'], function () {
+        Route::get('/', [ReviewController::class, 'index']);
+        Route::post('/', [ReviewController::class, 'store']);
+        Route::get('/{id}', [ReviewController::class, 'show']);
+        Route::put('/{id}', [ReviewController::class, 'update']);
+        Route::delete('/{id}', [ReviewController::class, 'destroy']);
     });
 });
 
