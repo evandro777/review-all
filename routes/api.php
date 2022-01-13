@@ -2,7 +2,6 @@
 
 // use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\ItemController;
 use App\Http\Controllers\API\UserController;
 
 /*
@@ -22,13 +21,20 @@ use App\Http\Controllers\API\UserController;
 
 
 Route::post('login', [UserController::class, 'login']);
+Route::post('login-token', [UserController::class, 'loginToken']);
 Route::post('register', [UserController::class, 'register']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
-Route::group(['prefix' => 'items', 'middleware' => 'auth:sanctum'], function () {
-    Route::get('/', [ItemController::class, 'index']);
-    Route::post('/', [ItemController::class, 'store']);
-    Route::get('/{id}', [ItemController::class, 'show']);
-    Route::put('/{id}', [ItemController::class, 'update']);
-    Route::delete('/{id}', [ItemController::class, 'destroy']);
+Route::group(['middleware' => 'auth:sanctum'], function () {
+    Route::group(['prefix' => 'items'], function () {
+        Route::get('/', [ItemController::class, 'index']);
+        Route::post('/', [ItemController::class, 'store']);
+        Route::get('/{id}', [ItemController::class, 'show']);
+        Route::put('/{id}', [ItemController::class, 'update']);
+        Route::delete('/{id}', [ItemController::class, 'destroy']);
+    });
+});
+
+Route::fallback(function (){
+    abort(404, 'API resource not found');
 });
