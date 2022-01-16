@@ -39,8 +39,8 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|max:255',
-            'description' => 'required|max:255',
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
             'fields_params' => 'json',
             'category_parent_id' => 'integer|min:1|exists:categories,id',
         ]);
@@ -90,8 +90,8 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'filled|max:255',
-            'description' => 'filled|max:255',
+            'name' => 'filled|string|max:255',
+            'description' => 'filled|string|max:255',
             'fields_params' => 'json',
             'category_parent_id' => 'integer|min:1|exists:categories,id',
         ]);

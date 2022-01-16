@@ -24,7 +24,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|alpha|min:5|max:255',
             'email' => 'required|email|max:255|unique:users,email',
-            'password' => 'required|min:8'
+            'password' => 'required|string|min:8'
         ]);
 
         try {
@@ -49,7 +49,7 @@ class UserController extends Controller
     {
         $request->validate([
             'email' => 'required|email|max:255',
-            'password' => 'required'
+            'password' => 'required|string'
         ]);
 
         $credentials = [
@@ -78,8 +78,8 @@ class UserController extends Controller
     {
         $request->validate([
             'email' => 'required|email|max:255',
-            'password' => 'required',
-            'device_name' => 'required|min:2|max:255',
+            'password' => 'required|string',
+            'device_name' => 'required|string|min:2|max:255',
         ]);
 
         $user = User::where([

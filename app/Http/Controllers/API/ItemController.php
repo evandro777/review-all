@@ -41,7 +41,8 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|max:255',
+            'name' => 'required|string|max:255',
+            'description' => 'string',
             'category_id' => 'required|integer|min:1|exists:categories,id',
         ]);
         
@@ -89,7 +90,8 @@ class ItemController extends Controller
     public function update(Request $request, int $id)
     {
         $request->validate([
-            'name' => 'filled|max:255',
+            'name' => 'filled|string|max:255',
+            'description' => 'filled|string',
             'category_id' => 'filled|integer|min:1|exists:categories,id',
         ]);
 
